@@ -23,6 +23,6 @@ typing_extensions==4.4.0
 Werkzeug==2.2.2
 flask_psycopg2
 marshmallow_sqlalchemy
-flas_restful
+flask_restful
 flask_jwt_extended
 flask_cors
