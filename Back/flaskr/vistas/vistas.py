@@ -7,17 +7,22 @@ usaurioSchema = UsuarioSchema()
 
 class SignIn(Resource):
     def post(self):
-            nuevo_usuario = Usuarios(nombre=request.json["nombre"], correo=request.json["correo"], contrasena=request.json["contrasena"])
-            db.session.add(nuevo_usuario)
-            db.session.commit()
-            return {'menaje':'Usuario creado'}
+            confirmation = request.json['password2']
+            nuevo_usuario = Usuarios(nombre=request.json["username"], correo=request.json["email"], contrasena=request.json["password1"])
+            if(confirmation == nuevo_usuario.contrasena):
+                db.session.add(nuevo_usuario)
+                db.session.commit()
+                return {'menaje':'Usuario creado'}
+            return {'mensaje':'Error en la autenticacion'} 
+            
+            
 
 class LogIn(Resource):
     def post(self):
-        u_correo = request.json["correo"]
-        u_contrasena = request.json["contrasena"]
-        usuario = Usuarios.query.filter_by(correo=u_correo, contrasena=u_contrasena).first()
-        token_de_Acceso = create_access_token(identity=request.json["correo"])
+        u_user = request.json["username"]
+        u_contrasena = request.json["password"]
+        usuario = Usuarios.query.filter_by(nombre=u_user, contrasena=u_contrasena).first()
+        token_de_Acceso = create_access_token(identity=request.json["username"])
         if usuario:
             return {'mensaje':'Inicio de sesion','token_de_acceso':token_de_Acceso}, 200
         else:

@@ -16,7 +16,7 @@ db.create_all()
 CORS = CORS(app)
 
 api = Api(app)
-api.add_resource(SignIn, '/signin')
-api.add_resource(LogIn, '/login')
+api.add_resource(SignIn, '/api/auth/signup')
+api.add_resource(LogIn, '/api/auth/login')
 
 jwt = JWTManager(app)
