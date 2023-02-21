@@ -16,7 +16,8 @@ class Tasks(db.Model):
     status = db.Column(db.String(50))
     timestamp = db.Column(db.DateTime())
     filename = db.Column(db.String(500))
-    path = db.Column(db.String(1000))
+    pathOrigin = db.Column(db.String(1000))
+    pathCompress = db.Column(db.String(1000))
     format = db.Column(db.String(50))
 
 class UsersSchema(SQLAlchemyAutoSchema):

@@ -7,6 +7,7 @@ import rarfile
 #from pylzma import compress
 import tarfile
 import os
+import smtplib
 
 usaurioSchema = UsersSchema()
 taskSchema = TasksSchema()
@@ -105,5 +106,21 @@ class CompressTar(Resource):
     
 
 class GetTasks(Resource):
+    @jwt_required()
     def get(self):
         return [taskSchema.dump(evento) for evento in Tasks.query.all()]
+    
+class SendEmail(Resource):
+    def post(self):
+        sender = 'oscar7bosigas@gmail.com'
+        msg = 'Prueba de correo con python'
+
+        username = 'oscar7bosigas@gmail.com'
+        password = 'wtknllydvcnkbwrr'
+
+        server = smtplib.SMTP('smtp.gmail.com:587')
+        server.starttls()
+        server.login(username,password)
+        server.sendmail(sender, request.json["email"], msg)
+        server.quit()
+        return {'mensaje':'Correo enviado'}

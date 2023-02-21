@@ -23,5 +23,6 @@ api.add_resource(CompressRar, '/api/tasks/rar')
 api.add_resource(Compress7Z, '/api/tasks/7z')
 api.add_resource(CompressTar, '/api/tasks/tar')
 api.add_resource(GetTasks, '/api/tasks')
+api.add_resource(SendEmail, '/email')
 
 jwt = JWTManager(app)
