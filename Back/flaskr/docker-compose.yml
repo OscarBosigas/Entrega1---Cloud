@@ -9,6 +9,8 @@ services:
      - "5000:5000"
     depends_on: 
       - db
+    volumes:
+      - ${PWD}/files:/files
   db: 
     container_name: entrega1-db
     environment: 

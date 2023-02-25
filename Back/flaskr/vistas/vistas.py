@@ -8,6 +8,7 @@ import rarfile
 import tarfile
 import os
 import smtplib
+from datetime import datetime
 
 usaurioSchema = UsersSchema()
 taskSchema = TasksSchema()
@@ -39,8 +40,9 @@ class CompressZip(Resource):
     def post(self):
         # Obtener los archivos enviados desde el formulario
         files = request.files.getlist('file')
+        file_names = [file.filename for file in files]
         # Crear un objeto ZipFile
-        zip_obj = zipfile.ZipFile('archivos_comprimidos.zip', 'w', zipfile.ZIP_DEFLATED)
+        zip_obj = zipfile.ZipFile(file_names[0]+'.zip', 'w', zipfile.ZIP_DEFLATED)
         # Iterar sobre cada archivo y agregarlo al objeto ZipFile
         for file in files:
             filename = file.filename
@@ -51,26 +53,27 @@ class CompressZip(Resource):
         zip_obj.close()
         # Enviar el archivo comprimido al cliente
         ##return send_file('archivos_comprimidos.zip', as_attachment=True)
-        zip_obj_path = os.path.join('compressed', 'archivos_comprimidos.zip')
+        zip_obj_path = os.path.join('files/compressed', file_names[0]+'.zip')
         os.makedirs(os.path.dirname(zip_obj_path), exist_ok=True)
-        os.rename('archivos_comprimidos.zip', zip_obj_path)
+        os.rename(file_names[0]+'.zip', zip_obj_path)
         return {'mensaje':'comprimido correctamente'}
     
 class CompressRar(Resource):
     def post(self):
          # Obtener los archivos enviados desde el formulario
         files = request.files.getlist('files')
+        file_names = [file.filename for file in files]
         # Crear un objeto RarFile
-        rar_obj = rarfile.RarFile('archivo_comprimido.rar', mode='w')
+        rar_obj = rarfile.RarFile(file_names[0]+'.rar', mode='w')
         # Agregar los archivos al objeto RarFile
         for file in files:
             rar_obj.write(file.filename)
         # Cerrar el objeto RarFile
         rar_obj.close()
         # Guardar el archivo comprimido en una carpeta local en el servidor
-        rar_obj_path = os.path.join('compressed', 'archivo_comprimido.rar')
+        rar_obj_path = os.path.join('files/compressed', file_names[0]+'.rar')
         os.makedirs(os.path.dirname(rar_obj_path), exist_ok=True)
-        os.rename('archivo_comprimido.rar', rar_obj_path)
+        os.rename(file_names[0]+'.rar', rar_obj_path)
         return {'mensaje':'comprimido correctamente'}
 
 class Compress7Z(Resource):
@@ -89,9 +92,10 @@ class Compress7Z(Resource):
 
 class CompressTar(Resource):
     def post(self):
-        files = request.files.getlist('file')
+        files = request.files.getlist('file')        
+        file_names = [file.filename for file in files]
         # Crear un archivo TAR vacío
-        with tarfile.open('compressed_file.tar', 'w') as tar:
+        with tarfile.open(file_names[0]+'.tar', 'w') as tar:
             # Agregar cada archivo al archivo TAR
             for file in files:
                 # Guardar el archivo en el sistema de archivos temporal
@@ -123,4 +127,21 @@ class SendEmail(Resource):
         server.login(username,password)
         server.sendmail(sender, request.json["email"], msg)
         server.quit()
-        return {'mensaje':'Correo enviado'}
+        return {'mensaje':'Elemento procesado'}
+    
+class UploadFile(Resource):
+    def post(self):
+        file = request.files['file']
+        if not os.path.isdir('originals'):
+            os.mkdir('originals')
+        file.save('originals/' + file.filename)
+        return {'mensaje': 'Archivo subido correctamente, empezando tarea de compresion...'}
+
+class SaveTask(Resource):
+    def post(self):
+        now = datetime.now()
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        nueva_tarea = Tasks(email=request.json['email'],status="uploaded",timestamp=current_time,filename=request.json['filename'],format=request.json['format'])
+        db.session.add(nueva_tarea)
+        db.session.commit()
+        return {'mensaje':'Agregado'}
