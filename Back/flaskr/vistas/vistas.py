@@ -114,22 +114,30 @@ class GetTasks(Resource):
     def get(self):
         return [taskSchema.dump(evento) for evento in Tasks.query.all()]
     
-class SendEmail(Resource):
-    def post(self):
-        sender = 'oscar7bosigas@gmail.com'
-        msg = 'Prueba de correo con python'
-
-        username = 'oscar7bosigas@gmail.com'
-        password = 'wtknllydvcnkbwrr'
-
-        server = smtplib.SMTP('smtp.gmail.com:587')
-        server.starttls()
-        server.login(username,password)
-        server.sendmail(sender, request.json["email"], msg)
-        server.quit()
-        return {'mensaje':'Elemento procesado'}
+class GetTask(Resource):
+    @jwt_required()
+    def get(self, id_task):
+        return [taskSchema.dump(Tasks.query.get_or_404(id_task))]
+    
+class Delete(Resource):
+    jwt_required()
+    def delete(self, id_task):
+        task = Tasks.query.get_or_404(id_task)
+        db.session.delete(task)
+        db.session.commit()
+        return 'Eliminado exitosamente', 204
+    
+def sendEmail(email, msg):
+    sender = 'oscar7bosigas@gmail.com'
+    password = 'wtknllydvcnkbwrr'
+    server = smtplib.SMTP('smtp.gmail.com:587')
+    server.starttls()
+    server.login(sender,password)
+    server.sendmail(sender, email, msg)
+    server.quit()
     
 class UploadFile(Resource):
+    jwt_required()
     def post(self):
         file = request.files['file']
         if not os.path.isdir('originals'):
@@ -138,10 +146,12 @@ class UploadFile(Resource):
         return {'mensaje': 'Archivo subido correctamente, empezando tarea de compresion...'}
 
 class SaveTask(Resource):
+    jwt_required()
     def post(self):
         now = datetime.now()
         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
         nueva_tarea = Tasks(email=request.json['email'],status="uploaded",timestamp=current_time,filename=request.json['filename'],format=request.json['format'])
         db.session.add(nueva_tarea)
         db.session.commit()
+        sendEmail(request.json['email'], 'Proceso de compresion iniciado')
         return {'mensaje':'Agregado'}
