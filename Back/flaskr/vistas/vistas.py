@@ -24,7 +24,6 @@ class SignIn(Resource):
             return {'mensaje':'Error en la autenticacion'} 
             
             
-
 class LogIn(Resource):
     def post(self):
         u_user = request.json["username"]
@@ -129,7 +128,7 @@ class Delete(Resource):
     
 def sendEmail(email, msg):
     sender = 'oscar7bosigas@gmail.com'
-    password = 'wtknllydvcnkbwrr'
+    password = 'ihpjhsfxcccgooga'
     server = smtplib.SMTP('smtp.gmail.com:587')
     server.starttls()
     server.login(sender,password)
@@ -140,9 +139,9 @@ class UploadFile(Resource):
     jwt_required()
     def post(self):
         file = request.files['file']
-        if not os.path.isdir('originals'):
-            os.mkdir('originals')
-        file.save('originals/' + file.filename)
+        if not os.path.isdir('broker/sin_comprimir'):
+            os.mkdir('broker/sin_comprimir')
+        file.save('broker/sin_comprimir/' + file.filename)
         return {'mensaje': 'Archivo subido correctamente, empezando tarea de compresion...'}
 
 class SaveTask(Resource):

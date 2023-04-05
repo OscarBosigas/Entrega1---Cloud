@@ -25,6 +25,6 @@ api.add_resource(CompressTar, '/api/tasks/tar')
 api.add_resource(GetTasks, '/api/tasks')
 api.add_resource(UploadFile, '/api/tasks')
 api.add_resource(SaveTask,'/api/save')
-api.add_resource(GetTask, '/api/tasks/<int:id_event')
+api.add_resource(GetTask, '/api/tasks/<int:id_event>')
 
 jwt = JWTManager(app)

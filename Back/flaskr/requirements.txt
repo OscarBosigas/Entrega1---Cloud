@@ -30,3 +30,4 @@ pylzma
 rarfile
 celery
 redis
+py7zr
